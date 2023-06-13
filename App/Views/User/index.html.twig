@@ -1,0 +1,45 @@
+{% extends '/layout/base.html.twig' %}
+
+{% block title %}
+    Liste des utilisateurs
+{% endblock %}
+
+{% block content %}
+    
+    <section id="authentication" class="bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2>Liste des utilisateurs</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Prénom</th>
+                                <th scope="col">Nom</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <th scope="row">{{ user.idUser }}</th>
+                                <td>{{ user.firstname }}</td>
+                                <td>{{ user.lastname }}</td>
+                                <td>{{ user.mailAddress }}</td>
+                                <td>
+                                    <a href="/user/edit?idUser={{ user.idUser }}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Edit</a>
+                                    <a href="/user/remove?idUser={{ user.idUser }}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Remove</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <a href="/user/add" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Ajouter</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+{% endblock %}

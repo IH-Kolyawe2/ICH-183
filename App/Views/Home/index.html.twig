@@ -1,0 +1,29 @@
+{% extends 'Layout/base.html.twig' %}
+
+{% block title %}
+    Page d'index
+{% endblock %}
+
+{% block content %}
+
+    <section id="tools" class="bg-light">
+        <div class="container">
+            
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h1>{{ hello }}</h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2>Outils</h2>
+                    <a href="/user" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Utilisateurs</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

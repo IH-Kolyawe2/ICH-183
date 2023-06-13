@@ -68,4 +68,40 @@ class UserController extends \Core\Controller
                 exit;
         }
     }
+
+    public function removeAction()
+    {
+        switch ($_SERVER['REQUEST_METHOD']) {
+            case 'GET':
+                $idUser = $_GET['idUser'];
+                $this->view['user'] = User::find($idUser);
+
+                $this->view += NotificationHelper::flush();
+                View::renderTemplate(
+                    '/User/remove.html.twig',
+                    $this->view
+                );
+                break;
+
+            case 'POST':
+                $user = $_POST;
+
+                if (!User::remove($user)) {
+                    $_SESSION['user'] = $user;
+
+                    NotificationHelper::set('user.remove', 'warning', 'Erreur lors de la suppression de l\'utilisateur');
+
+                    header('Location: /user/index');
+                    exit;
+                }
+
+                NotificationHelper::set('user.remove', 'success', 'Utilisateur supprimé');
+                header('Location: /user/index');
+                exit;
+
+            default:
+                http_response_code(422);
+                exit;
+        }
+    }
 }

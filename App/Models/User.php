@@ -71,4 +71,19 @@ class User extends \Core\Model
 
         return $success;
     }
+
+    public static function remove($model)
+    {
+        $db = static::getDB();
+        $success = $db
+            ->prepare(<<< SQL
+                UPDATE `Users` SET
+                    `deletedAt` = CURRENT_TIMESTAMP
+                WHERE `idUser` = {$model['idUser']}
+                LIMIT 1;
+                SQL)
+            ->execute();
+
+        return $success;
+    }
 }

@@ -1,0 +1,21 @@
+{% extends 'Layout/base.html.twig' %}
+
+{% block title %}
+    Page d'index
+{% endblock %}
+
+{% block content %}
+
+    <section id="authentication" class="bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2>Authentification</h2>
+                    <a href="/AuthBasic/login" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">HTTP Basic login</a>
+                    <a href="/AuthBasic/logout" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">HTTP Basic logout</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

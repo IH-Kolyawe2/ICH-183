@@ -4,13 +4,16 @@
  * Front controller
  */
 
+use App\Libs\SessionSecurityHandler;
+
 /**
  * Composer
  */
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 ini_set('xdebug.var_display_max_depth', 10);
-session_start();
+$sessionSecurityHandler = new SessionSecurityHandler();
+$sessionSecurityHandler->startSession();
 
 /**
  * Error and Exception handling

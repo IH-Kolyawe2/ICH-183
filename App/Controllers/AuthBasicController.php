@@ -5,10 +5,19 @@ namespace App\Controllers;
 use \Core\View;
 use \App\Helpers\NotificationHelper;
 use App\Models\User;
+use App\Libs\SessionSecurityHandler;
 
 class AuthBasicController extends \Core\Controller
 {
     private const REALM = 'oPh?\dRG>B413a;E:5';
+    private $sessionSecurityHandler;
+
+    public function __construct($route_params)
+    {
+        parent::__construct($route_params);
+
+        $this->sessionSecurityHandler = new SessionSecurityHandler();
+    }
 
     public function loginAction()
     {
@@ -27,7 +36,7 @@ class AuthBasicController extends \Core\Controller
             }
             else
             {
-                session_regenerate_id();
+                $this->sessionSecurityHandler->regenerateSession();
 
                 NotificationHelper::set('authBasic.login', 'success', 'Le processus de connexion a réussi');
 
@@ -49,8 +58,7 @@ class AuthBasicController extends \Core\Controller
 
     public function logoutAction()
     {
-        session_destroy();
-        session_start();
+        $this->sessionSecurityHandler->destroySession();
 
         header('WWW-Authenticate: Basic realm="' . self::REALM . '"');
         header('HTTP/1.1 401 Unauthorized', true, 401);

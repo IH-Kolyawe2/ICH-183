@@ -5,9 +5,19 @@ namespace App\Controllers;
 use \Core\View;
 use \App\Helpers\NotificationHelper;
 use \App\Models\User;
+use App\Libs\SessionSecurityHandler;
 
 class AuthFormController extends \Core\Controller
 {
+    private $sessionSecurityHandler;
+
+    public function __construct($route_params)
+    {
+        parent::__construct($route_params);
+
+        $this->sessionSecurityHandler = new SessionSecurityHandler();
+    }
+
     public function loginAction()
     {
         switch ($_SERVER['REQUEST_METHOD']) {
@@ -32,6 +42,8 @@ class AuthFormController extends \Core\Controller
                     header('Location: /auth');
                     exit;
                 }
+
+                $this->sessionSecurityHandler->regenerateSession();
 
                 $_SESSION['user'] = $user;
 
@@ -65,7 +77,7 @@ class AuthFormController extends \Core\Controller
                     exit;
                 }
 
-                session_destroy();
+                $this->sessionSecurityHandler->destroySession();
 
                 NotificationHelper::set('authForm.logout', 'success', 'Le processus de déconnexion a réussi');
                 header('Location: /auth');

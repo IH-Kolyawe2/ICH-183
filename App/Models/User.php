@@ -37,6 +37,21 @@ class User extends \Core\Model
         return $model;
     }
 
+    public static function findByMailAddress(string $mailAddress)
+    {
+        $db = static::getDB();
+        $model = $db
+            ->query(<<< SQL
+                SELECT `idUser`, `firstname`, `lastname`, `mailAddress`, `password`, `createdAt`, `updatedAt`, `deletedAt`
+                FROM `users`
+                WHERE `mailAddress`= '{$mailAddress}'
+                LIMIT 1;
+                SQL)
+            ->fetch();
+
+        return $model;
+    }
+
     public static function findByMailAddressAndPassword(string $mailAddress, string $password)
     {
         $db = static::getDB();

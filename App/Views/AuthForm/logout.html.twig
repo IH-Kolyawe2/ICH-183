@@ -1,0 +1,26 @@
+{% extends 'Layout/base.html.twig' %}
+
+{% block title %}
+    Déconnexion d'un utilisateur
+{% endblock %}
+
+{% block content %}
+
+    <section id="authentication" class="bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg mx-auto">
+                    <h2>Déconnexion HTTP Form</h2>
+                    <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+                    <form method="POST">
+                        <div class="form-group">
+                            <a href="javascript:history.back()" class="btn btn-secondary">Retour</a>
+                            <button type="submit" class="btn btn-primary">Déconnexion</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

@@ -26,10 +26,7 @@ class UserController extends \Core\Controller
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
                 // Affichage du formulaire
-                View::renderTemplate(
-                    '/User/add.html.twig',
-                    $this->view
-                );
+                View::renderTemplate('/User/add.html.twig', $this->view);
                 break;
 
             case 'POST':
@@ -38,7 +35,6 @@ class UserController extends \Core\Controller
                 User::add($user);
 
                 NotificationHelper::set('user.add', 'success', 'Utilisateur ajouté');
-
                 header('Location: /User/index');
                 exit;
         }
@@ -51,10 +47,7 @@ class UserController extends \Core\Controller
                 $idUser = $_GET['idUser'];
                 $this->view['user'] = User::find($idUser);
 
-                View::renderTemplate(
-                    '/User/edit.html.twig',
-                    $this->view
-                );
+                View::renderTemplate('/User/edit.html.twig', $this->view);
                 break;
 
             case 'POST':
@@ -63,7 +56,6 @@ class UserController extends \Core\Controller
                 User::update($user);
 
                 NotificationHelper::set('user.edit', 'success', 'Utilisateur mise à jour');
-
                 header('Location: /User/index');
                 exit;
         }
@@ -77,10 +69,7 @@ class UserController extends \Core\Controller
                 $this->view['user'] = User::find($idUser);
 
                 $this->view += NotificationHelper::flush();
-                View::renderTemplate(
-                    '/User/remove.html.twig',
-                    $this->view
-                );
+                View::renderTemplate('/User/remove.html.twig', $this->view);
                 break;
 
             case 'POST':
@@ -90,7 +79,6 @@ class UserController extends \Core\Controller
                     $_SESSION['user'] = $user;
 
                     NotificationHelper::set('user.remove', 'warning', 'Erreur lors de la suppression de l\'utilisateur');
-
                     header('Location: /user/index');
                     exit;
                 }

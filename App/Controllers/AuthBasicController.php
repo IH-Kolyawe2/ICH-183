@@ -12,16 +12,13 @@ class AuthBasicController extends \Core\Controller
 
     public function loginAction()
     {
-        if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW']))
-        {
+        if(empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
             header('WWW-Authenticate: Basic realm="' . self::REALM . '"');
             header('HTTP/1.1 401 Unauthorized', true, 401);
 
             View::renderTemplate('AuthBasic/login.html.twig');
             return;
-        }
-        else
-        {
+        } else {
             $user = User::findByMailAddressAndPassword($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
 
             if ($user == null)

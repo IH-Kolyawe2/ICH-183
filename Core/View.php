@@ -46,7 +46,7 @@ class View
             $twig = new \Twig\Environment($loader, [
                 'debug' => true,
                 'auto_reload' => true,
-                'autoescape' => 'false'
+                'autoescape' => false
             ]);
             $twig->addExtension(new \Twig\Extension\DebugExtension());
         }

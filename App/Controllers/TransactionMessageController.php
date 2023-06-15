@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Helpers\CSRFSecurityHelper;
 use App\Models\User;
 use App\Models\Financialtransaction;
 use App\Models\TransactionMessage;
@@ -18,6 +19,7 @@ class TransactionMessageController extends \Core\Controller
         else
             $this->view['transactionMessages'] = TransactionMessage::getAll();
 
+        CSRFSecurityHelper::clear();
         $this->view['debug']['session'] = $_SESSION;
         $this->view += NotificationHelper::flush();
 
@@ -35,6 +37,7 @@ class TransactionMessageController extends \Core\Controller
         */
         //$this->view['transactionMessage']['content'] = HtmlSanitizer::sanitizeValue($this->view['transactionMessage']['content']);
 
+        CSRFSecurityHelper::clear();
         $this->view['debug']['session'] = $_SESSION;
         $this->view += NotificationHelper::flush();
 
@@ -53,7 +56,8 @@ class TransactionMessageController extends \Core\Controller
 
                 $this->view['availableAuthors'] = User::getAll();
                 $this->view['availableTransactions'] = Financialtransaction::getAll();
-
+                    
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['view']['debug'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
 
@@ -62,6 +66,12 @@ class TransactionMessageController extends \Core\Controller
 
             case 'POST':
                 $transactionMessageForm = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $transactionMessageForm)) {
+                    NotificationHelper::set('transactionMessage.add', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /transactionMessage', true, 302);
+                    exit;
+                }
 
                 if(!TransactionMessage::add($transactionMessageForm)) {
                     $_SESSION['transactionMessage'] = $transactionMessageForm;
@@ -96,6 +106,7 @@ class TransactionMessageController extends \Core\Controller
                 $this->view['availableAuthors'] = User::getAll();
                 $this->view['availableTransactions'] = Financialtransaction::getAll();
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['view']['debug'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
 
@@ -104,6 +115,12 @@ class TransactionMessageController extends \Core\Controller
 
             case 'POST':
                 $transactionMessageForm = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $transactionMessageForm)) {
+                    NotificationHelper::set('transactionMessage.edit', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /transactionMessage', true, 302);
+                    exit;
+                }
 
                 if(!TransactionMessage::update($transactionMessageForm)) {
                     $_SESSION['transactionMessage'] = $transactionMessageForm;
@@ -134,6 +151,7 @@ class TransactionMessageController extends \Core\Controller
                     $this->view['transactionMessage'] = TransactionMessage::find($_GET['idTransactionMessage']);
                 }
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['debug']['session'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
 
@@ -142,6 +160,12 @@ class TransactionMessageController extends \Core\Controller
 
             case 'POST':
                 $transactionMessageForm = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $transactionMessageForm)) {
+                    NotificationHelper::set('transactionMessage.remove', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /transactionMessage', true, 302);
+                    exit;
+                }
 
                 if(!TransactionMessage::remove($transactionMessageForm)) {
                     $_SESSION['transactionMessage'] = $transactionMessageForm;

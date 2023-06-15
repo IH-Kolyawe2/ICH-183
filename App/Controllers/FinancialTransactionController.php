@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Helpers\CSRFSecurityHelper;
 use App\Models\FinancialTransaction;
 use App\Helpers\NotificationHelper;
 use App\Models\BankAccount;
@@ -24,6 +25,7 @@ class FinancialTransactionController extends \Core\Controller
         else
             $this->view['financialTransactions'] = FinancialTransaction::getAll();
 
+        CSRFSecurityHelper::clear();
         $this->view['debug']['session'] = $_SESSION;
         $this->view += NotificationHelper::flush();
 
@@ -34,6 +36,7 @@ class FinancialTransactionController extends \Core\Controller
     {
         $this->view['financialTransaction'] = FinancialTransaction::find($_GET['idFinancialTransaction']);
 
+        CSRFSecurityHelper::clear();
         $this->view['debug']['session'] = $_SESSION;
         $this->view += NotificationHelper::flush();
 
@@ -54,6 +57,7 @@ class FinancialTransactionController extends \Core\Controller
                 $this->view['availableSenders'] = BankAccount::getAll();
                 $this->view['availableRecipients'] = BankAccount::getAll();
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['debug']['session'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
 
@@ -62,6 +66,12 @@ class FinancialTransactionController extends \Core\Controller
 
             case 'POST':
                 $financialTransactionForm = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $financialTransactionForm)) {
+                    NotificationHelper::set('financialTransaction.add', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /financialTransaction', true, 302);
+                    exit;
+                }
 
                 if(!FinancialTransaction::add($financialTransactionForm)) {
                     $_SESSION['financialTransaction'] = $financialTransactionForm;
@@ -96,6 +106,7 @@ class FinancialTransactionController extends \Core\Controller
                 $this->view['availableSenders'] = BankAccount::getAll();
                 $this->view['availableRecipients'] = BankAccount::getAll();
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['debug']['session'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
 
@@ -104,6 +115,12 @@ class FinancialTransactionController extends \Core\Controller
 
             case 'POST':
                 $financialTransactionForm = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $financialTransactionForm)) {
+                    NotificationHelper::set('financialTransaction.edit', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /financialTransaction', true, 302);
+                    exit;
+                }
 
                 if(!FinancialTransaction::update($financialTransactionForm)) {
                     $_SESSION['financialTransaction'] = $financialTransactionForm;
@@ -130,6 +147,7 @@ class FinancialTransactionController extends \Core\Controller
                 $financialTransactionId = $_GET['idFinancialTransaction'];
                 $this->view['financialTransaction'] = FinancialTransaction::find($financialTransactionId);
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['debug']['session'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
 
@@ -138,6 +156,12 @@ class FinancialTransactionController extends \Core\Controller
 
             case 'POST':
                 $financialTransactionForm = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $financialTransactionForm)) {
+                    NotificationHelper::set('financialTransaction.remove', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /financialTransaction', true, 302);
+                    exit;
+                }
 
                 if(!FinancialTransaction::remove($financialTransactionForm)) {
                     $_SESSION['financialTransaction'] = $financialTransactionForm;

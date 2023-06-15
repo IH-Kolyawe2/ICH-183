@@ -28,8 +28,11 @@
                             <label for="mailAddress">Adresse email</label>
                             <input type="email" class="form-control" id="mailAddress" name="mailAddress" readonly="readonly" placeholder="Adresse email" value="{{ user.mailAddress }}">
                         </div>
-                        <a href="/user/index" class="btn btn-secondary">Annuler</a>
-                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                        <div class="form-group">
+                            <input type="hidden" name="{{ csrf.key }}" value="{{ csrf.value }}">
+                            <a href="/user/index" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </div>
                     </form>
                 </div>
             </div>

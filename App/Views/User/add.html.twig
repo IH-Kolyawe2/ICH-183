@@ -33,6 +33,7 @@
                             <input type="password" class="form-control" id="passwordconfirm" name="passwordconfirm" placeholder="Confirmation du mot de passe" value="{{ user.passwordconfirm }}">
                         </div>
                         <div class="form-group">
+                            <input type="hidden" name="{{ csrf.key }}" value="{{ csrf.value }}">
                             <a href="/user/index" class="btn btn-secondary">Annuler</a>
                             <button type="submit" class="btn btn-primary">Sauver</button>
                         </div>

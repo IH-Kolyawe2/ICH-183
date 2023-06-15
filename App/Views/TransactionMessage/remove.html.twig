@@ -47,6 +47,7 @@
                             <textarea class="form-control" id="content" name="content" readonly placeholder="Contenu">{{ transactionMessage.content }}</textarea>
                         </div>
                         <div class="form-group">
+                            <input type="hidden" name="{{ csrf.key }}" value="{{ csrf.value }}">
                             <a href="javascript:history.back()" class="btn btn-secondary">Retour</a>
                             <button text="text" class="btn btn-danger">Supprimer</button>
                         </div>

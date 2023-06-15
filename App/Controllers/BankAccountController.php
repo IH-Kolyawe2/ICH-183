@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Helpers\CSRFSecurityHelper;
 use App\Models\BankAccount;
 use App\Helpers\NotificationHelper;
 use App\Models\User;
@@ -15,6 +16,7 @@ class BankAccountController extends \Core\Controller
             ? BankAccount::findByIdOwner($_GET['idOwner'])
             : BankAccount::getAll();
 
+        CSRFSecurityHelper::clear();
         $this->view['debug']['session'] = $_SESSION;
         $this->view += NotificationHelper::flush();
 
@@ -25,6 +27,7 @@ class BankAccountController extends \Core\Controller
     {
         $this->view['bankAccount'] = BankAccount::find($_GET['idBankAccount']);
 
+        CSRFSecurityHelper::clear();
         $this->view['debug']['session'] = $_SESSION;
         $this->view += NotificationHelper::flush();
 
@@ -44,6 +47,7 @@ class BankAccountController extends \Core\Controller
 
                 $this->view['availableOwners'] = User::getAll();
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['debug']['session'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
 
@@ -52,6 +56,12 @@ class BankAccountController extends \Core\Controller
 
             case 'POST':
                 $bankAccountForm = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $bankAccountForm)) {
+                    NotificationHelper::set('bankAccount.add', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /bankAccount', true, 302);
+                    exit;
+                }
 
                 if(!BankAccount::add($bankAccountForm)) {
                     $_SESSION['bankAccount'] = $bankAccountForm;
@@ -84,6 +94,7 @@ class BankAccountController extends \Core\Controller
 
                 $this->view['availableOwners'] = User::getAll();
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['debug']['session'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
 
@@ -92,6 +103,12 @@ class BankAccountController extends \Core\Controller
 
             case 'POST':
                 $bankAccountForm = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $bankAccountForm)) {
+                    NotificationHelper::set('bankAccount.edit', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /bankAccount', true, 302);
+                    exit;
+                }
 
                 if(!BankAccount::update($bankAccountForm)) {
                     $_SESSION['bankAccount'] = $bankAccountForm;
@@ -119,6 +136,7 @@ class BankAccountController extends \Core\Controller
                 $bankAccountId = $_GET['idBankAccount'];
                 $this->view['bankAccount'] = BankAccount::find($bankAccountId);
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['debug']['session'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
 
@@ -127,6 +145,12 @@ class BankAccountController extends \Core\Controller
 
             case 'POST':
                 $bankAccountForm = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $bankAccountForm)) {
+                    NotificationHelper::set('bankAccount.remove', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /bankAccount', true, 302);
+                    exit;
+                }
 
                 if(!BankAccount::remove($bankAccountForm)) {
                     $_SESSION['bankAccount'] = $bankAccountForm;

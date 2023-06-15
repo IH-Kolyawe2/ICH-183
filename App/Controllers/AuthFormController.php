@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Helpers\CSRFSecurityHelper;
 use \Core\View;
 use \App\Helpers\NotificationHelper;
 use \App\Models\User;
@@ -28,12 +29,19 @@ class AuthFormController extends \Core\Controller
                     exit;
                 }
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view += NotificationHelper::flush();
                 View::renderTemplate('AuthForm/login.html.twig', $this->view);
                 break;
 
             case 'POST':
                 $userForm = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $userForm)) {
+                    NotificationHelper::set('authForm.login', 'warning', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /authForm/login', true, 302);
+                    exit;
+                }
 
                 $user = User::findByMailAddressAndPassword($userForm['mailAddress'], $userForm['password']);
 
@@ -67,10 +75,20 @@ class AuthFormController extends \Core\Controller
                     exit;
                 }
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
+                $this->view += NotificationHelper::flush();
                 View::renderTemplate('AuthForm/logout.html.twig');
                 break;
 
             case 'POST':
+                $userForm = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $userForm)) {
+                    NotificationHelper::set('authForm.logout', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /authFrom/login', true, 302);
+                    exit;
+                }
+
                 if(empty($_SESSION['user'])) {
                     NotificationHelper::set('authForm.logout', 'warning', 'Vous n\'êtes pas connecté');
                     header('Location: /auth');

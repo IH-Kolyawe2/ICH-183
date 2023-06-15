@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-
+use App\Helpers\CSRFSecurityHelper;
 use App\Models\User;
 use App\Helpers\NotificationHelper;
 use \Core\View;
@@ -13,6 +13,9 @@ class UserController extends \Core\Controller
     {
         $users = User::getAll();
         $this->view['users'] = $users;
+
+        CSRFSecurityHelper::clear();
+        $this->view['debug']['session'] = $_SESSION;
         $this->view += NotificationHelper::flush();
 
         View::renderTemplate(
@@ -25,8 +28,9 @@ class UserController extends \Core\Controller
     {
         $this->view['user'] = User::find($_GET['idUser']);
 
-        $this->view += NotificationHelper::flush();
+        CSRFSecurityHelper::clear();
         $this->view['debug']['session'] = $_SESSION;
+        $this->view += NotificationHelper::flush();
 
         View::renderTemplate('User/details.html.twig', $this->view);
     }
@@ -35,6 +39,10 @@ class UserController extends \Core\Controller
     {
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
+                $this->view['debug']['session'] = $_SESSION;
+                $this->view += NotificationHelper::flush();
+
                 // Affichage du formulaire
                 View::renderTemplate('/User/add.html.twig', $this->view);
                 break;
@@ -42,6 +50,13 @@ class UserController extends \Core\Controller
             case 'POST':
                 // Insertion du nouvel utilisateur
                 $user = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $user)) {
+                    NotificationHelper::set('user.add', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /user', true, 302);
+                    exit;
+                }
+
                 User::add($user);
 
                 NotificationHelper::set('user.add', 'success', 'Utilisateur ajouté');
@@ -57,12 +72,23 @@ class UserController extends \Core\Controller
                 $idUser = $_GET['idUser'];
                 $this->view['user'] = User::find($idUser);
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
+                $this->view['debug']['session'] = $_SESSION;
+                $this->view += NotificationHelper::flush();
+
                 View::renderTemplate('/User/edit.html.twig', $this->view);
                 break;
 
             case 'POST':
                 // Mise à jour de utilisateur
                 $user = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $user)) {
+                    NotificationHelper::set('user.edit', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /user', true, 302);
+                    exit;
+                }
+
                 User::update($user);
 
                 NotificationHelper::set('user.edit', 'success', 'Utilisateur mise à jour');
@@ -85,6 +111,7 @@ class UserController extends \Core\Controller
 
                 unset($this->view['user']['password'], $this->view['user']['passwordconfirm']);
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['debug']['session'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
 
@@ -93,6 +120,12 @@ class UserController extends \Core\Controller
 
             case 'POST':
                 $userForm = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $userForm)) {
+                    NotificationHelper::set('user.add', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /user', true, 302);
+                    exit;
+                }
 
                 if($userForm['password'] !== $userForm['passwordconfirm']) {
                     $_SESSION['user'] = $userForm;
@@ -129,12 +162,21 @@ class UserController extends \Core\Controller
                 $idUser = $_GET['idUser'];
                 $this->view['user'] = User::find($idUser);
 
+                $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
+                $this->view['debug']['sessuib'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
+
                 View::renderTemplate('/User/remove.html.twig', $this->view);
                 break;
 
             case 'POST':
                 $user = $_POST;
+
+                if(!CSRFSecurityHelper::verify(__METHOD__, $user)) {
+                    NotificationHelper::set('user.remove', 'danger', 'Le jeton CSRF n\'est pas valide');
+                    header('Location: /user', true, 302);
+                    exit;
+                }
 
                 if (!User::remove($user)) {
                     $_SESSION['user'] = $user;

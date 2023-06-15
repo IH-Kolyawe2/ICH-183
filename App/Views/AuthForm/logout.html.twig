@@ -14,6 +14,7 @@
                     <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
                     <form method="POST">
                         <div class="form-group">
+                            <input type="hidden" name="{{ csrf.key }}" value="{{ csrf.value }}">
                             <a href="javascript:history.back()" class="btn btn-secondary">Retour</a>
                             <button type="submit" class="btn btn-primary">Déconnexion</button>
                         </div>

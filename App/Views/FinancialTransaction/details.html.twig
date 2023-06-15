@@ -1,0 +1,55 @@
+{% extends 'Layout/base.html.twig' %}
+
+{% block title %}
+    Détails d'une transaction financière
+{% endblock %}
+
+{% block content %}    
+
+    <section class="bg-ligh">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2>Détails d'une transaction financière</h2>
+                    <form method="POST">
+                        <div class="form-group">
+                            <label for="idFinancialTransaction">ID</label>
+                            <input type="text" class="form-control" id="idFinancialTransaction" name="idFinancialTransaction" readonly value="{{ financialTransaction.idFinancialTransaction }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="idSender">Expéditeur</label>
+                            <select id="idSender" name="idSender" disabled>
+                                <option value="{{ availableSender.idSender }}" {{ selected }}>
+                                    {{ financialTransaction['sender.owner.firstname'] }} 
+                                    {{ financialTransaction['sender.owner.lastname'] }} 
+                                    ({{ financialTransaction['sender.owner.mailAddress'] }}) - 
+                                    {{ financialTransaction['sender.description'] }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="idRecipient">Déstinataire</label>
+                            <select id="idRecipient" name="idRecipient" disabled>
+                                <option value="{{ availableSender.idRecipient }}" {{ selected }}>
+                                    {{ financialTransaction['recipient.owner.firstname'] }} 
+                                    {{ financialTransaction['recipient.owner.lastname'] }} 
+                                    ({{ financialTransaction['recipient.owner.mailAddress'] }}) - 
+                                    {{ financialTransaction['recipient.description'] }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount" class="form-group">Montant</label>
+                            <input type="text" class="form-control" id="amount" name="amount" readonly placeholder="Montant" value="{{ financialTransaction.amount }}">
+                        </div>
+                        <div class="form-group">
+                            <a href="/transactionMessage/index/?idTransaction={{ financialTransaction.idFinancialTransaction }}" class="btn btn-secondary">Liste des message de transaction</a>
+                            <a href="javascript:history.back()" class="btn btn-primary">Retour</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

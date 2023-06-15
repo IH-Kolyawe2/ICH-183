@@ -1,0 +1,43 @@
+{% extends 'Layout/base.html.twig' %}
+
+{% block title %}
+    Détail d'un compte bancaire
+{% endblock %}
+
+{% block content %}    
+
+    <section class="bg-ligh">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2>Détail d'un compte bancaire</h2>
+                    <form method="POST">
+                        <div class="form-group">
+                            <label for="idBankAccount">ID</label>
+                            <input type="text" class="form-control" id="idBankAccount" name="idBankAccount" readonly value="{{ bankAccount.idBankAccount }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="idOwner">Propriétaire</label>
+                            <select id="idOwner" disabled name="idOwner">
+                                <option value="{{ bankAccount.idOwner }}">{{ bankAccount['owner.firstname'] }} {{ bankAccount['owner.lastname'] }} ({{ bankAccount['owner.mailAddress'] }})</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input type="text" class="form-control" id="description" name="description" readonly placeholder="Description" value="{{ bankAccount.description }}">
+                        </div>
+                        <div class="form-group">
+                            <a href="/user/details?idUser={{ bankAccount.idOwner }}" class="btn btn-secondary">Propriétaire</a>
+                            <a href="/financialtransaction/index?idSender={{ bankAccount.idBankAccount }}" class="btn btn-secondary">Liste des transactions financères (expéditeur)</a>
+                            <a href="/financialtransaction/index?idRecipient={{ bankAccount.idBankAccount }}" class="btn btn-secondary">Liste des transactions financères (destinataire)</a>
+                        </div>
+                        <div class="form-group">
+                            <a href="javascript:history.back()" class="btn btn-secondary">Retour</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

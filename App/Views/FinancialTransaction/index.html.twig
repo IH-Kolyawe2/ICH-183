@@ -1,0 +1,56 @@
+{% extends '/layout/base.html.twig' %}
+
+{% block title %}
+    Liste des transactions financières
+{% endblock %}
+
+{% block content %}
+
+    <section class="bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2>Liste des transactions financières</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Montant</th>
+                                <th scope="col">Expéditeur</th>
+                                <th scope="col">Destinataire</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <body>
+                            {% for financialTransaction in financialTransactions %}
+                            <tr>
+                                <th scope="row">{{ financialTransaction.idFinancialTransaction }}</th>
+                                <td>{{ financialTransaction.amount }}</td>
+                                <td>
+                                    {{ financialTransaction['sender.owner.firstname'] }} 
+                                    {{ financialTransaction['sender.owner.lastname'] }}<br>
+                                    ({{ financialTransaction['sender.owner.mailAddress'] }}) - {{ financialTransaction['sender.description'] }}
+                                </td>
+                                <td>
+                                    {{ financialTransaction['recipient.owner.firstname'] }} 
+                                    {{ financialTransaction['recipient.owner.lastname'] }}<br>
+                                    ({{ financialTransaction['recipient.owner.mailAddress'] }}) - {{ financialTransaction['recipient.description'] }}
+                                </td>
+                                <td>
+                                    <a href="/financialTransaction/details?idFinancialTransaction={{ financialTransaction.idFinancialTransaction }}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Détails</a>
+                                    <a href="/financialTransaction/edit?idFinancialTransaction={{ financialTransaction.idFinancialTransaction }}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Edit</a>
+                                    <a href="/financialTransaction/remove?idFinancialTransaction={{ financialTransaction.idFinancialTransaction }}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Remove</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </body>
+                    </table>
+                    <div class="form-group">
+                        <a href="/financialTransaction/add" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Ajouter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

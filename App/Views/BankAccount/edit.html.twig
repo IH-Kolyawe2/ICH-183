@@ -1,0 +1,45 @@
+{% extends 'Layout/base.html.twig' %}
+
+{% block title %}
+    Édition d'un compte bancaire
+{% endblock %}
+
+{% block content %}
+
+    <section class="bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2>Édition d'un compte bancaire</h2>
+                    <form method="post">
+                        <div class="form-group">
+                            <label for="idBankAccount" >ID</label>
+                            <input type="text" class="form-control" id="idBankAccount" name="idBankAccount" readonly value="{{ bankAccount.idBankAccount }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="idOwner">Propriétaire</label>
+                            <select id="idOwner" name="idOwner">
+                                {% for availableOwner in availableOwners %}
+                                    {% set selected = '' %}
+                                    {% if availableOwner.idUser == bankAccount.idOwner %}
+                                        {% set selected = 'selected' %}
+                                    {% endif %}
+                                    <option value="{{ availableOwner.idUser }}" {{ selected }}>{{ availableOwner.firstname }} {{ availableOwner.lastname }} ({{ availableOwner.mailAddress }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input type="text" class="form-control" id="description" name="description" placeholder="Description" value="{{ bankAccount.description }}">
+                        </div>
+                        <div class="form-group">
+                            <a href="javascript:history.back()" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-primary">Sauver</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

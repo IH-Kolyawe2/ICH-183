@@ -1,0 +1,67 @@
+{% extends '/layout/base.html.twig' %}
+
+{% block title %}
+    Edition d'une transaction financière
+{% endblock %}
+
+{% block content %}
+
+    <section class="bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2>Edition d'une transaction financière</h2>
+                    <form method="post">
+                        <div class="form-group">
+                            <label for="idFinancialTransaction">ID</label>
+                            <input type="text" class="form-control" id="idFinancialTransaction" name="idFinancialTransaction" readonly value="{{ financialTransaction.idFinancialTransaction }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="idSender">Expéditeur</label>
+                            <select id="idSender" name="idSender">
+                            {% for availableSender in availableSenders %}
+                                {% set selected = '' %}
+                                {% if availableSender.idBankAccount == financialTransaction.idSender %}
+                                    {% set selected = 'selected' %}
+                                {% endif %}
+                                <option value="{{ availableSender.idBankAccount }}" {{ selected }}>
+                                    {{ availableSender['owner.firstname'] }} 
+                                    {{ availableSender['owner.lastname'] }} 
+                                    ({{ availableSender['owner.mailAddress'] }}) - 
+                                    {{ availableSender['description'] }}
+                                </option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="idRecipient">Destinataire</label>
+                            <select id="idRecipient" name="idRecipient">
+                            {% for availableRecipient in availableRecipients %}
+                                {% set selected = '' %}
+                                {% if availableRecipient.idBankAccount == financialTransaction.idRecipient %}
+                                    {% set selected = 'selected' %}
+                                {% endif %}
+                                <option value="{{ availableRecipient.idBankAccount }}" {{ selected }}>
+                                    {{ availableRecipient['owner.firstname'] }} 
+                                    {{ availableRecipient['owner.lastname'] }} 
+                                    ({{ availableRecipient['owner.mailAddress'] }}) - 
+                                    {{ availableRecipient['description'] }}
+                                </option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">Montant</label>
+                            <input type="text" class="form-control" id="amount" name="amount" placeholder="Montant" value="{{ financialTransaction.amount }}">
+                        </div>
+                        <div class="form-group">
+                            <a href="javascript:history.back()" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-primary">Sauver</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

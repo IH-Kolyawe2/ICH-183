@@ -1,0 +1,60 @@
+{% extends '/layout/base.html.twig' %}
+
+{% block title %}
+    Liste des messages de transactions
+{% endblock %}
+
+{% block content %}
+
+    <section class="bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2>Liste des messages de transactions</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Transaction</th>
+                                <th scope="col">Auteur</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transactionMessage in transactionMessages %}
+                                <tr>
+                                    <th scope="row">{{ transactionMessage.idTransactionMessage }}</th>
+                                    <td>
+                                        {{ transactionMessage['transaction.sender.owner.firstname'] }} 
+                                        {{ transactionMessage['transaction.sender.owner.lastname'] }} 
+                                        ({{ transactionMessage['transaction.sender.owner.mailAddress'] }}) - 
+                                        {{ transactionMessage['transaction.sender.description'] }} 
+                                        <br>-><br>
+                                        {{ transactionMessage['transaction.recipient.owner.firstname'] }} 
+                                        {{ transactionMessage['transaction.recipient.owner.lastname'] }} 
+                                        ({{ transactionMessage['transaction.recipient.owner.mailAddress'] }}) - 
+                                        {{ transactionMessage['transaction.recipient.description'] }}
+                                    </td>
+                                    <td>
+                                        {{ transactionMessage['author.firstname'] }} 
+                                        {{ transactionMessage['author.lastname'] }} 
+                                        ({{ transactionMessage['author.mailAddress'] }})
+                                    </td>
+                                    <td>
+                                        <a href="/transactionMessage/details?idTransactionMessage={{ transactionMessage.idTransactionMessage }}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Details</a>
+                                        <a href="/transactionMessage/edit?idTransactionMessage={{ transactionMessage.idTransactionMessage }}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Edit</a>
+                                        <a href="/transactionMessage/remove?idTransactionMessage={{ transactionMessage.idTransactionMessage }}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Remove</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="form-group">
+                        <a href="/transactionMessage/add" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Ajouter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

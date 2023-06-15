@@ -21,6 +21,16 @@ class UserController extends \Core\Controller
         );
     }
 
+    public function detailsAction()
+    {
+        $this->view['user'] = User::find($_GET['idUser']);
+
+        $this->view += NotificationHelper::flush();
+        $this->view['debug']['session'] = $_SESSION;
+
+        View::renderTemplate('User/details.html.twig', $this->view);
+    }
+
     public function addAction()
     {
         switch ($_SERVER['REQUEST_METHOD']) {
@@ -35,7 +45,7 @@ class UserController extends \Core\Controller
                 User::add($user);
 
                 NotificationHelper::set('user.add', 'success', 'Utilisateur ajouté');
-                header('Location: /User/index');
+                header('Location: /User');
                 exit;
         }
     }
@@ -56,8 +66,59 @@ class UserController extends \Core\Controller
                 User::update($user);
 
                 NotificationHelper::set('user.edit', 'success', 'Utilisateur mise à jour');
-                header('Location: /User/index');
+                header('Location: /User');
                 exit;
+        }
+    }
+
+    public function editPasswordAction()
+    {
+        switch ($_SERVER['REQUEST_METHOD']) {
+            case 'GET':
+                if (!empty($_SESSION['user'])) {
+                    $this->view['user'] = $_SESSION['user'];
+                    unset($_SESSION['user']);
+                } else {
+                    $idUser = $_GET['idUser'];
+                    $this->view['user'] = User::find($idUser);
+                }
+
+                unset($this->view['user']['password'], $this->view['user']['passwordconfirm']);
+
+                $this->view['debug']['session'] = $_SESSION;
+                $this->view += NotificationHelper::flush();
+
+                View::renderTemplate('user/editPassword.html.twig', $this->view);
+                break;
+
+            case 'POST':
+                $userForm = $_POST;
+
+                if($userForm['password'] !== $userForm['passwordconfirm']) {
+                    $_SESSION['user'] = $userForm;
+                    
+                    NotificationHelper::set('user.editPassword', 'warning', 'Les mots de passes ne correspondent pas');
+                    header('Location: /user/editPassword?idUser=' . $userForm['idUser']);
+                    exit;
+                }
+
+                if(!User::updatePassword($userForm)) {
+                    $_SESSION['user'] = $userForm;
+                    
+                    NotificationHelper::set('user.editPassword', 'warning', 'Erreur lors de la sauvegarde du mot de passe de l\'utilisateur');
+                    header('Location: /user/editPassword?idUser=' . $userForm['idUser']);
+                    exit;
+                }
+
+                NotificationHelper::set('user.editPassword', 'success', 'Mot de passe de l\'utilisateur sauvegardé');
+                header('Location: /user');
+                exit;
+                break;
+
+            default:
+                http_response_code(422);
+                exit;
+                break;
         }
     }
 
@@ -79,12 +140,12 @@ class UserController extends \Core\Controller
                     $_SESSION['user'] = $user;
 
                     NotificationHelper::set('user.remove', 'warning', 'Erreur lors de la suppression de l\'utilisateur');
-                    header('Location: /user/index');
+                    header('Location: /user');
                     exit;
                 }
 
                 NotificationHelper::set('user.remove', 'success', 'Utilisateur supprimé');
-                header('Location: /user/index');
+                header('Location: /user');
                 exit;
 
             default:

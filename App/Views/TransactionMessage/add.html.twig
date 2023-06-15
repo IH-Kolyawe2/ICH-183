@@ -1,0 +1,65 @@
+{% extends 'Layout/base.html.twig' %}
+
+{% block title %}
+    Ajout d'un message de transaction
+{% endblock %}
+
+{% block content %}    
+    
+    <section class="bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2>Ajout d'un message de transaction</h2>
+                    <form method="POST">
+                        <div class="form-group">
+                            <label for="idAuthor">Auteur</label>
+                            <select id="idAuthor" name="idAuthor">
+                                {% for availableAuthor in availableAuthors %}
+                                    {% set selected = ''%}
+                                    {% if availableAuthor.idUser == transactionMessage.idAuthor %}
+                                        {% set selected = 'selected' %}
+                                    {% endif %}
+                                    <option value="{{ availableAuthor.idUser }}" {{ selected }}>
+                                        {{ availableAuthor.firstname }} 
+                                        {{ availableAuthor.lastname }} 
+                                        ({{ availableAuthor.mailAddress }})
+                                    </options>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="idTransaction">Transaction</label>
+                            <select id="idTransaction" name="idTransaction">
+                                {% for availableTransaction in availableTransactions %}
+                                    {% set selected = '' %}
+                                    {% if availableTransaction.idFinancialTransaction == transactionMessage.idTransaction %}
+                                        {% set selected = 'selected' %}
+                                    {% endif %}
+                                    <option value="{{ availableTransaction.idFinancialTransaction }}" {{ selected }}>
+                                        {{ availableTransaction['sender.owner.firstname'] }} 
+                                        {{ availableTransaction['sender.owner.lastname'] }} 
+                                        ({{ availableTransaction['sender.owner.mailAddress'] }})
+                                         -> 
+                                        {{ availableTransaction['recipient.owner.firstname'] }} 
+                                        {{ availableTransaction['recipient.owner.lastname'] }} 
+                                        ({{ availableTransaction['recipient.owner.mailAddress'] }})
+                                    </options>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="content">Contenu</label>
+                            <textarea class="form-control" id="content" name="content" placeholder="Contenu">{{ transactionMessage.content }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <a href="javascript:history.back()" class="btn btn-secondary">Retour</a>
+                            <button text="text" class="btn btn-primary">Ajouter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

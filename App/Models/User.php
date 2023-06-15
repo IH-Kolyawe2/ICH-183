@@ -110,7 +110,6 @@ class User extends \Core\Model
                     `firstname` = :firstname,
                     `lastname` = :lastname,
                     `mailAddress` = :mailAddress,
-                    `password` = :password,
                     `updatedAt` = CURRENT_TIMESTAMP
                 WHERE `idUser` = :idUser
                 LIMIT 1;
@@ -120,6 +119,25 @@ class User extends \Core\Model
         $stmt->bindParam(':firstname', $model['firstname'], PDO::PARAM_STR);
         $stmt->bindParam(':lastname', $model['lastname'], PDO::PARAM_STR);
         $stmt->bindParam(':mailAddress', $model['mailAddress'], PDO::PARAM_STR);
+        $success = $stmt->execute();
+
+        return $success;
+    }
+
+    public static function updatePassword($model)
+    {
+        $db = static::getDB();
+        $stmt = $db
+            ->prepare(<<< SQL
+                UPDATE `Users` SET
+                    `password` = :password,
+                    `updatedAt` = CURRENT_TIMESTAMP
+                WHERE `deletedAt` IS NULL
+                AND `idUser` = :idUser
+                LIMIT 1;
+            SQL);
+
+        $stmt->bindParam(':idUser', $model['idUser'], PDO::PARAM_INT);
         $stmt->bindParam(':password', $model['password'], PDO::PARAM_STR);
         $success = $stmt->execute();
 

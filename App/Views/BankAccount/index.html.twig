@@ -1,0 +1,49 @@
+{% extends '/layout/base.html.twig' %}
+
+{% block title %}
+    Liste des comptes bancaires
+{% endblock %}
+
+{% block content %}
+
+    <section class="bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2>Liste des comptes bancaires</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Propriétaire</th>
+                                <th scope="col">Solde</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% for bankAccount in bankAccounts %}
+                            <tr>
+                                <th scope="row">{{ bankAccount.idBankAccount }}</th>
+                                <td>{{ bankAccount.description }}</td>
+                                <td>{{ bankAccount['owner.firstname'] }} {{ bankAccount['owner.lastname'] }} ({{ bankAccount['owner.mailAddress'] }})</td>
+                                <td>{{ bankAccount.balance }}</td>
+                                <td>
+                                    <a href="/bankAccount/details?idBankAccount={{ bankAccount.idBankAccount }}" class="btn btn-primary btn-lg">Détails</a>
+                                    <a href="/bankAccount/edit?idBankAccount={{ bankAccount.idBankAccount }}" class="btn btn-primary btn-lg">Edit</a>
+                                    <a href="/bankAccount/remove?idBankAccount={{ bankAccount.idBankAccount }}" class="btn btn-primary btn-lg">Remove</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="form-grooup">
+                        <a href="/bankAccount/add" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Ajouter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

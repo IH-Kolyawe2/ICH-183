@@ -29,6 +29,7 @@
                                 <td>{{ user.lastname }}</td>
                                 <td>{{ user.mailAddress }}</td>
                                 <td>
+                                    <a href="/user/details?idUser={{ user.idUser }}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Détails</a>
                                     <a href="/user/edit?idUser={{ user.idUser }}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Edit</a>
                                     <a href="/user/remove?idUser={{ user.idUser }}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Remove</a>
                                 </td>
@@ -36,7 +37,9 @@
                         {% endfor %}
                         </tbody>
                     </table>
-                    <a href="/user/add" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Ajouter</a>
+                    <div class="form-group">
+                        <a href="/user/add" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Ajouter</a>
+                    </div>
                 </div>
             </div>
         </div>

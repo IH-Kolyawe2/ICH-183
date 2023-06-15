@@ -44,7 +44,9 @@
                         </div>
                         <div class="form-group">
                             <label for="content" class="form-group">Montant</label>
-                            <input type="text" class="form-control" id="content" name="content" readonly placeholder="Contenu" value="{{ transactionMessage.content }}">
+                            <div class="form-control" id="content" name="content" readonly placeholder="Contenu">
+                                {{ transactionMessage.content }}
+                            </div>
                         </div>
                         <div class="form-group">
                             <a href="/financialTransaction/index/?idTransaction={{ transactionMessage.idTransaction }}" class="btn btn-secondary">Voir la transaction financière </a>

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Financialtransaction;
 use App\Models\TransactionMessage;
 use App\Helpers\NotificationHelper;
+use App\Libs\HtmlSanitizer;
 use Core\View;
 
 class TransactionMessageController extends \Core\Controller
@@ -26,6 +27,13 @@ class TransactionMessageController extends \Core\Controller
     public function detailsAction()
     {
         $this->view['transactionMessage'] = TransactionMessage::find($_GET['idTransactionMessage']);
+
+         // Manual implementation of sanitization
+        /*
+        this prevent img tag to work.
+        Disable it and use blacktaglist filter in html.twig view file.
+        */
+        //$this->view['transactionMessage']['content'] = HtmlSanitizer::sanitizeValue($this->view['transactionMessage']['content']);
 
         $this->view['debug']['session'] = $_SESSION;
         $this->view += NotificationHelper::flush();

@@ -45,7 +45,7 @@
                         <div class="form-group">
                             <label for="content" class="form-group">Montant</label>
                             <div class="form-control" id="content" name="content" readonly placeholder="Contenu">
-                                {{ transactionMessage.content }}
+                                {{ transactionMessage.content | blacklisttags }}
                             </div>
                         </div>
                         <div class="form-group">

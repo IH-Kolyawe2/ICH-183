@@ -48,6 +48,7 @@ class View
                 'auto_reload' => true,
                 'autoescape' => false
             ]);
+            $twig->addExtension(new \App\Libs\TwigBlacklistedTagExtension(['script', 'iframe']));
             $twig->addExtension(new \Twig\Extension\DebugExtension());
         }
 

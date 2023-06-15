@@ -6,7 +6,7 @@ class HtmlSanitizer
 {
     public static function sanitizeArray(array $values, array $keys = null) : array
     {
-        $key = $keys ?: array_keys($values);
+        $keys = $keys ?: array_keys($values);
 
         foreach($keys as $key) {
             if(!array_key_exists($key, $values))

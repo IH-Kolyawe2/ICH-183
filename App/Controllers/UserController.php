@@ -41,7 +41,17 @@ class UserController extends \Core\Controller
             ['idUser' => $_SESSION['user']['idUser'] ?? null]
         );
 
-        $this->view['user'] = User::find($_GET['idUser']);
+        $user = $_GET;
+
+        $validationMessages = User::validate($user);
+
+        if (!empty($validationMessages)) {
+            NotificationHelper::set('user.detail', 'warning', 'Erreur lors de l\'affichage de l\'utilisateur : <br>' . implode('<br>', $validationMessages));
+            header('Location: /user/index');
+            exit;
+        }
+
+        $this->view['user'] = User::find($user['idUser']);
 
         CSRFSecurityHelper::clear();
         $this->view['debug']['session'] = $_SESSION;
@@ -59,15 +69,18 @@ class UserController extends \Core\Controller
 
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
-                if(!empty($_SESSION['user'])) {
-                    $this->view['user'] = $_SESSION['user'];
+                if(!empty($_SESSION['savedstate'])) {
+                    $user = $_SESSION['savedstate'];
                     $this->logger->debug(
                         'Restoring model from saved state', 
-                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'user' => $this->view['user']]
+                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'user' => $this->view['savedstate']]
                     );
-                    unset($_SESSION['user']);
+                    unset($_SESSION['savedstate']);
+                }else {
+                    $user = [];
                 }
-
+                
+                $this->view['user'] = $user;
                 $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['debug']['session'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
@@ -86,6 +99,21 @@ class UserController extends \Core\Controller
                     exit;
                 }
 
+                $validationMessages = User::validate($user);
+
+                if(!empty($validationMessages)) {
+                    unset(
+                        $user['passwordPlaintext'],
+                        $user['passwordPlaintextConfirm']
+                    );
+
+                    $_SESSION['savedState'] = $user;
+
+                    NotificationHelper::set('user.add', 'warning', 'Erreur lors de l\'ajout de l\'utilisateur : <br>' . implode('<br>', $validationMessages));
+                    header('Location: /user/add');
+                    exit;
+                };
+
                 if($user['passwordPlaintext'] !== $user['passwordPlaintextConfirm']) {
                     unset(
                         $uset['passwordPlaintext'],
@@ -97,7 +125,7 @@ class UserController extends \Core\Controller
                         ['idUser' => $_SESSION['user']['idUser'] ?? null]
                     );
 
-                    $_SESSION['user'] = $user;
+                    $_SESSION['savedstate'] = $user;
                     NotificationHelper::set('user.add', 'warning', 'Les mots passes correspondent pas');
                     header('Location: /user/add');
                     exit;
@@ -114,7 +142,7 @@ class UserController extends \Core\Controller
                         ['idUser' => $_SESSION['user']['idUser'] ?? null, 'user' => $user]
                     );
 
-                    $_SESSION['user'] = $user;
+                    $_SESSION['savedstate'] = $user;
 
                     NotificationHelper::set('user.add', 'warning', 'Erreur lors de l\'ajout de l\'utilisateur');
                     header('Location: /user/add');
@@ -146,21 +174,31 @@ class UserController extends \Core\Controller
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
                 if(!empty($_SESSION['user'])) {
-                    $this->view['user'] = $_SESSION['user'];
+                    $user = $_SESSION['savedstate'];
                     $this->logger->debug(
                         'Restoring model from saved state', 
-                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'financialTransaction' => $this->view['financialTransaction']]
+                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'user' => $this->view['savedstate']]
                     );
-                    unset($_SESSION['user']);
-                } else{
+                    unset($_SESSION['savedstate']);
+                } else {
                     $this->logger->info(
                         'Filtering on user.', 
                         ['idUser' => $_SESSION['user']['idUser'] ?? null, 'idUser' => $_GET['idUser']]
                     );
-                    $idUser = $_GET['idUser'];
-                    $this->view['user'] = User::find($idUser);
+                    $user = $_GET;
+                    $validationMessages = User::validate($user);
+
+                    if (!empty($validationMessages)) {
+                        $_SESSION['savedState'] = $user;
+                        NotificationHelper::set('user.edit', 'warning', 'Erreur lors de l\'édition de l\'utilisateur : <br>' . implode('<br>', $validationMessages));
+                        header('Location: /user/index');
+                        exit;
+                    }
+
+                    $user = User::find($user['idUser']);
                 }
 
+                $this->view['user'] = $user;
                 $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['debug']['session'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
@@ -178,8 +216,21 @@ class UserController extends \Core\Controller
                     exit;
                 }
 
+                $validationMessages = User::validate($user);
+
+                if(!empty($validationMessages)) {
+                    $_SESSIO['savedState'] = $user;
+                    
+                    NotificationHelper::set('user.edit', 'warning', 'Erreur lors de la modification de l\'utilisateur : : <br>' . implode('<br>', $validationMessages));
+                    header('Location: /user/index');
+                    exit;
+                }
+
+                $dbModel = User::find($user['idUser']);
+                $user = array_merge($dbModel, $user);
+
                 if(!User::update($user)) {
-                    $_SESSION['user'] = $user;
+                    $_SESSION['savedState'] = $user;
 
                     $this->logger->notice(
                         'Unable to update user', 
@@ -215,24 +266,21 @@ class UserController extends \Core\Controller
 
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
-                if (!empty($_SESSION['user'])) {
-                    $this->view['user'] = $_SESSION['user'];
-                    $this->logger->debug(
-                        'Restoring model from saved state', 
-                        ['idUser' => $_SESSION['user']['idUser'] ?? null]
-                    );
-                    unset($_SESSION['user']);
-                } else {
-                    $this->logger->info(
-                        'Filtering on user.', 
-                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'idUser' => $_GET['idUser']]
-                    );
-                    $idUser = $_GET['idUser'];
-                    $this->view['user'] = User::find($idUser);
+                $this->logger->info(
+                    'Filtering on user.', 
+                    ['idUser' => $_SESSION['user']['idUser'] ?? null, 'idUser' => $_GET['idUser']]
+                );
+                
+                $user = $_GET;
+                $validationMessages = User::validate($user);
+
+                if (!empty($validationMessages)) {
+                    NotificationHelper::set('user.editPassword', 'warning', 'Erreur lors de l\'édition de l\'utilisateur : <br>' . implode('<br>', $validationMessages));
+                    header('Location: /user/index');
+                    exit;
                 }
 
-                unset($this->view['user']['password'], $this->view['user']['passwordconfirm']);
-
+                $this->view['user'] = User::find($user['idUser']);
                 $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['debug']['session'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
@@ -249,6 +297,14 @@ class UserController extends \Core\Controller
                     exit;
                 }
 
+                $validationMessages = User::validate($userForm);
+
+                if (!empty($validationMessages)) {
+                    NotificationHelper::set('user.editPassword', 'warning', 'Erreur lors de l\'édition de l\'utilisateur : <br>' . implode('<br>', $validationMessages));
+                    header('Location: /user/editPassword?idUser=' . $userForm['idUser']);
+                    exit;
+                }
+
                 if($userForm['passwordPlaintext'] !== $userForm['passwordPlaintextConfirm']) {
                     unset(
                         $userForm['passwordPlaintext'],
@@ -260,14 +316,17 @@ class UserController extends \Core\Controller
                         ['idUser' => $_SESSION['user']['idUser'] ?? null]
                     );
 
-                    $_SESSION['user'] = $userForm;
+                    $_SESSION['savedState'] = $userForm;
                     
                     NotificationHelper::set('user.editPassword', 'warning', 'Les mots de passes ne correspondent pas');
                     header('Location: /user/editPassword?idUser=' . $userForm['idUser']);
                     exit;
                 }
 
-                if(!User::updatePassword($userForm)) {
+                $dbModel = User::find($userForm['idUser']);
+                $user = array_merge($dbModel, $userForm);
+
+                if(!User::updatePassword($user)) {
                     unset(
                         $userForm['passwordPlaintext'],
                         $userForm['passwordPlaintextConfirm']
@@ -310,13 +369,28 @@ class UserController extends \Core\Controller
 
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
-                $this->logger->info(
-                    'Filtering on user.', 
-                    ['idUser' => $_SESSION['user']['idUser'] ?? null, 'idUser' => $_GET['idUser']]
-                );
-                $idUser = $_GET['idUser'];
-                $this->view['user'] = User::find($idUser);
+                if (!empty($_SESSION['savedState'])) {
+                    $user = $_SESSION['savedState'];
+                } else {
+                    $this->logger->info(
+                        'Filtering on user.', 
+                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'idUser' => $_GET['idUser']]
+                    );
+                    $user = $_GET;
 
+                    $validationMessages = User::validate($user);
+
+                    if (!empty($validationMessages)) {
+                        $_SESSION['savedState'] = $user;
+                        NotificationHelper::set('user.remove', 'warning', 'Erreur lors de la suppression de l\'utilisateur : <br>' . implode('<br>', $validationMessages));
+                        header('Location: /user/index');
+                        exit;
+                    }
+
+                    $user = User::find($user['idUser']);
+                }
+                
+                $this->view['user'] = $user;
                 $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view['debug']['sessuib'] = $_SESSION;
                 $this->view += NotificationHelper::flush();
@@ -334,7 +408,7 @@ class UserController extends \Core\Controller
                 }
 
                 if (!User::remove($user)) {
-                    $_SESSION['user'] = $user;
+                    $_SESSION['savedState'] = $user;
 
                     $this->logger->notice(
                         'Unable to remove user', 
@@ -342,7 +416,7 @@ class UserController extends \Core\Controller
                     );
 
                     NotificationHelper::set('user.remove', 'warning', 'Erreur lors de la suppression de l\'utilisateur');
-                    header('Location: /user');
+                    header('Location: /user/remove?idUser=' . $user['idUser']);
                     exit;
                 }
 

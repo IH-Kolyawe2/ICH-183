@@ -77,7 +77,7 @@ class AuthFormController extends \Core\Controller
 
                 $this->view += CSRFSecurityHelper::createAndFlush(__METHOD__);
                 $this->view += NotificationHelper::flush();
-                View::renderTemplate('AuthForm/logout.html.twig');
+                View::renderTemplate('AuthForm/logout.html.twig', $this->view);
                 break;
 
             case 'POST':

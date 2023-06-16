@@ -25,12 +25,12 @@
                             <input type="email" class="form-control" id="mailAddress" name="mailAddress" placeholder="Adresse email" value="{{ user.mailAddress }}">
                         </div>
                         <div class="form-group">
-                            <label for="password">Mot de passe</label>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Mot de passe" value="{{ user.password }}">
+                            <label for="passwordPlaintext">Mot de passe</label>
+                            <input type="password" class="form-control" id="passwordPlaintext" name="passwordPlaintext" placeholder="Mot de passe" value="{{ user.passwordPlaintext }}">
                         </div>
                         <div class="form-group">
-                            <label for="passwordconfirm">Confirmation du mot de passe</label>
-                            <input type="password" class="form-control" id="passwordconfirm" name="passwordconfirm" placeholder="Confirmation du mot de passe" value="{{ user.passwordconfirm }}">
+                            <label for="passwordPlaintextConfirm">Confirmation du mot de passe</label>
+                            <input type="password" class="form-control" id="passwordPlaintextConfirm" name="passwordPlaintextConfirm" placeholder="Confirmation du mot de passe" value="{{ user.passwordPlaintextConfirm }}">
                         </div>
                         <div class="form-group">
                             <input type="hidden" name="{{ csrf.key }}" value="{{ csrf.value }}">

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use PDO;
+use App\Libs\PasswordHandler;
 
 class User extends \Core\Model
 {
@@ -60,28 +61,22 @@ class User extends \Core\Model
         return $model;
     }
 
-    public static function findByMailAddressAndPassword(string $mailAddress, string $password)
+    public static function findByMailAddressAndPassword(string $mailAddress, string $passwordPlaintext)
     {
-        $db = static::getDB();
-        $stmt = $db
-            ->prepare(<<< SQL
-                SELECT `idUser`, `firstname`, `lastname`, `mailAddress`, `password`, `createdAt`, `updatedAt`, `deletedAt`
-                FROM `users`
-                WHERE `mailAddress`= :mailAddress
-                AND `password`= :password
-                LIMIT 1;
-                SQL);
+        $model = self::findByMailAddress($mailAddress);
+        $model['passwordPlaintext'] = $passwordPlaintext;
 
-        $stmt->bindParam(':mailAddress', $mailAddress, PDO::PARAM_STR);
-        $stmt->bindParam(':password', $password, PDO::PARAM_STR);
-        $stmt->execute();
-        $model = $stmt->fetch();
+        if(!self::verifyPassword($model)) {
+            return null;
+        }
 
         return $model;
     }
 
     public static function add($model): bool
     {
+        self::encryptPassword($model);
+
         $db = static::getDB();
         $stmt = $db
             ->prepare(<<< SQL
@@ -103,7 +98,6 @@ class User extends \Core\Model
     public static function update($model)
     {
         $db = static::getDB();
-
         $stmt = $db
             ->prepare(<<< SQL
                 UPDATE `users` SET
@@ -126,6 +120,8 @@ class User extends \Core\Model
 
     public static function updatePassword($model)
     {
+        self::encryptPassword($model);
+
         $db = static::getDB();
         $stmt = $db
             ->prepare(<<< SQL
@@ -159,5 +155,44 @@ class User extends \Core\Model
         $success = $stmt->execute();
 
         return $success;
+    }
+
+    protected static function verifyPassword(&$model, $checkForUpdate = true): bool
+    {
+        if(!array_key_exists('password', $model)) {
+            $dbModel = self::find($model['idUser']);
+
+            if(!$dbModel)
+                return false;
+
+            $model['password'] = $dbModel['password'];
+        }
+
+        $passwordHandler = new PasswordHandler();
+        $success = $passwordHandler->verify($model['passwordPlaintext'], $model['password']);
+
+        if($success && $checkForUpdate && $passwordHandler->checkForUpdate($model['password'])) {
+            self::updatePassword($model);
+        }
+
+        return $success;
+    }
+
+
+    protected static function encryptPassword(&$model): bool
+    {
+        if(!array_key_exists('passwordPlaintext', $model))
+            return false;
+
+        $passwordHandler = new PasswordHandler();
+        $encValue = $passwordHandler->hash($model['passwordPlaintext']);
+
+        if($encValue === false) {
+            return false;
+        }
+
+        $model['password'] = $encValue;
+
+        return true;
     }
 }

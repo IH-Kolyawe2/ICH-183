@@ -57,7 +57,30 @@ class UserController extends \Core\Controller
                     exit;
                 }
 
-                User::add($user);
+                if($user['passwordPlaintext'] !== $user['passwordPlaintextConfirm']) {
+                    unset(
+                        $uset['passwordPlaintext'],
+                        $uset['passwordPlaintextConfirm']
+                    );
+
+                    $_SESSION['user'] = $user;
+                    NotificationHelper::set('user.add', 'warning', 'Les mots passes correspondent pas');
+                    header('Location: /user/add');
+                    exit;
+                }
+
+                if(!User::add($user)) {
+                    unset(
+                        $user['passwordPlaintext'],
+                        $user['passwordPlaintextConfirm']
+                    );
+
+                    $_SESSION['user'] = $user;
+
+                    NotificationHelper::set('user.add', 'warning', 'Erreur lors de l\'ajout de l\'utilisateur');
+                    header('Location: /user/add');
+                    exit;
+                }
 
                 NotificationHelper::set('user.add', 'success', 'Utilisateur ajouté');
                 header('Location: /User');
@@ -127,7 +150,12 @@ class UserController extends \Core\Controller
                     exit;
                 }
 
-                if($userForm['password'] !== $userForm['passwordconfirm']) {
+                if($userForm['passwordPlaintext'] !== $userForm['passwordPlaintextConfirm']) {
+                    unset(
+                        $userForm['passwordPlaintext'],
+                        $userForm['passwordPlaintextConfirm']
+                    );
+
                     $_SESSION['user'] = $userForm;
                     
                     NotificationHelper::set('user.editPassword', 'warning', 'Les mots de passes ne correspondent pas');
@@ -136,6 +164,11 @@ class UserController extends \Core\Controller
                 }
 
                 if(!User::updatePassword($userForm)) {
+                    unset(
+                        $userForm['passwordPlaintext'],
+                        $userForm['passwordPlaintextConfirm']
+                    );
+
                     $_SESSION['user'] = $userForm;
                     
                     NotificationHelper::set('user.editPassword', 'warning', 'Erreur lors de la sauvegarde du mot de passe de l\'utilisateur');

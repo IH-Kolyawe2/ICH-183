@@ -43,7 +43,7 @@ class AuthFormController extends \Core\Controller
                     exit;
                 }
 
-                $user = User::findByMailAddressAndPassword($userForm['mailAddress'], $userForm['password']);
+                $user = User::findByMailAddressAndPassword($userForm['mailAddress'], $userForm['passwordPlaintext']);
 
                 if($user == null) {
                     NotificationHelper::set('authForm.login', 'warning', 'Le nom d\'utilisateur ou mot de passe est invalide');
@@ -54,6 +54,7 @@ class AuthFormController extends \Core\Controller
                 $this->sessionSecurityHandler->regenerateSession();
 
                 $_SESSION['user'] = $user;
+                unset($user['passwordPlainText']);
 
                 NotificationHelper::set('authForm.login', 'success', 'Le processus de connexion a réussi');
                 header('Location: /auth');

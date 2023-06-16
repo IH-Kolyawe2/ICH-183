@@ -14,5 +14,7 @@ class Config
     const DB_USER = 'root';
     const DB_PASS = '123456';
 
+    const BCRYPT_COST = 7;
+
     const SHOW_ERRORS = true;
 }

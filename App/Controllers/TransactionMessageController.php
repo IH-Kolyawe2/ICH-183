@@ -14,11 +14,24 @@ class TransactionMessageController extends \Core\Controller
 {
     public function indexAction()
     {
-        if(!empty($_GET['idTransaction']))
+        $this->logger->info(
+            'Begining handle `' . $_SERVER['REQUEST_METHOD'] . '` request on `' . __FUNCTION__ . '`', 
+            ['idUser' => $_SESSION['user']['idUser'] ?? null]
+        );
+        
+        if(!empty($_GET['idTransaction'])) {
+            // $this->logger->info('Filtering on transaction.', ['idUser' => $_SESSION['user']['idUser'] ?? null, 'idTransaction' => $_GET['idTransaction']]);
             $this->view['transactionMessages'] = TransactionMessage::findByIdTransaction($_GET['idTransaction']);
-        else
+        } else { 
+            $this->logger->info('Get all results', ['idUser' => $_SESSION['user']['idUser'] ?? null]);
             $this->view['transactionMessages'] = TransactionMessage::getAll();
-
+        }
+        
+        $this->logger->debug(
+            'Got ' . count($this->view['transactionMessages']) . ' results :', 
+            ['idUser' => $_SESSION['user']['idUser'] ?? null, 'transactionMessages' => $this->view['transactionMessages']]
+        );
+        
         CSRFSecurityHelper::clear();
         $this->view['debug']['session'] = $_SESSION;
         $this->view += NotificationHelper::flush();
@@ -28,6 +41,11 @@ class TransactionMessageController extends \Core\Controller
 
     public function detailsAction()
     {
+        $this->logger->info(
+            'Begining handle `' . $_SERVER['REQUEST_METHOD'] . '` request on `' . __FUNCTION__ . '`', 
+            ['idUser' => $_SESSION['user']['idUser'] ?? null]
+        );
+
         $this->view['transactionMessage'] = TransactionMessage::find($_GET['idTransactionMessage']);
 
          // Manual implementation of sanitization
@@ -46,13 +64,23 @@ class TransactionMessageController extends \Core\Controller
 
     public function addAction()
     {
+        $this->logger->info(
+            'Begining handle `' . $_SERVER['REQUEST_METHOD'] . '` request on `' . __FUNCTION__ . '`', 
+            ['idUser' => $_SESSION['user']['idUser'] ?? null]
+        );
+        
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
                 if(!empty($_SESSION['transactionMessage'])) {
                     $this->view['transactionMessage'] = $_SESSION['transactionMessage'];
+                    $this->logger->debug(
+                        'Restoring model from saved state', 
+                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'transactionMessage' => $this->view['transactionMessage']]
+                    );
                     unset($_SESSION['transactionMessage']);
-                } else 
+                } else {
                     $this->view['transactionMessage'] = [];
+                }
 
                 $this->view['availableAuthors'] = User::getAll();
                 $this->view['availableTransactions'] = Financialtransaction::getAll();
@@ -76,16 +104,26 @@ class TransactionMessageController extends \Core\Controller
                 if(!TransactionMessage::add($transactionMessageForm)) {
                     $_SESSION['transactionMessage'] = $transactionMessageForm;
 
+                    $this->logger->notice(
+                        'Unable to save transaction message', 
+                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'transactionMessage' => $transactionMessageForm]
+                    );
+
                     NotificationHelper::set('transactionMessage.add', 'warning', 'Erreur lors de l\'ajout du message de transatcion');
                     header('Location: /transactionMessage/add');
                     exit;
                 }
 
+                $this->logger->info('Transaction message saved', ['idUser' => $_SESSION['user']['idUser'] ?? null]);
                 NotificationHelper::set('transactionMessage.add', 'success', 'Message de transatcion ajouté');
                 header('Location: /transactionMessage');
                 exit;
 
             default:
+                $this->logger->warning(
+                    'Request method not supported', 
+                    ['idUser' => $_SESSION['user']['idUser'] ?? null, 'requestMethod' => $_SERVER['REQUEST_METHOD']]
+                );
                 http_response_code(422);
                 exit;
         }
@@ -93,12 +131,25 @@ class TransactionMessageController extends \Core\Controller
 
     public function editAction()
     {
+        $this->logger->info(
+            'Begining handle `' . $_SERVER['REQUEST_METHOD'] . '` request on `' . __FUNCTION__ . '`', 
+            ['idUser' => $_SESSION['user']['idUser'] ?? null]
+        );
+        
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
                 if(!empty($_SESSION['transactionMessage'])) {
                     $this->view['transactionMessage'] = $_SESSION['transactionMessage'];
+                    $this->logger->debug(
+                        'Restoring model from saved state', 
+                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'transactionMessage' => $this->view['transactionMessage']]
+                    );
                     unset($_SESSION['transactionMessage']);
                 } else {
+                    $this->logger->info(
+                        'Filtering on transaction message.', 
+                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'idTransactionMessage' => $_GET['idTransactionMessage']]
+                    );
                     $transactionMessageId = $_GET['idTransactionMessage'];
                     $this->view['transactionMessage'] = TransactionMessage::find($transactionMessageId);
                 }
@@ -125,16 +176,26 @@ class TransactionMessageController extends \Core\Controller
                 if(!TransactionMessage::update($transactionMessageForm)) {
                     $_SESSION['transactionMessage'] = $transactionMessageForm;
 
-                    NotificationHelper::set('transactionMessage.edit', 'warning', 'Erreur lors de l\'ajout du message de transatcion');
+                    $this->logger->notice(
+                        'Unable to update transaction message', 
+                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'transactionMessage' => $transactionMessageForm]
+                    );
+
+                    NotificationHelper::set('transactionMessage.edit', 'warning', 'Erreur lors de la sauvegarde du message de transatcion');
                     header('Location: /transactionMessage/edit?idTransactionMessage=' . $transactionMessageForm['idTransactionMessage']);
                     exit;
                 }
 
+                $this->logger->info('Transaction message updated', ['idUser' => $_SESSION['user']['idUser'] ?? null]);
                 NotificationHelper::set('transactionMessage.add', 'success', 'Message de transatcion ajouté');
                 header('Location: /transactionMessage');
                 exit;
                 
             default:
+                $this->logger->warning(
+                    'Request method not supported', 
+                    ['idUser' => $_SESSION['user']['idUser'] ?? null, 'requestMethod' => $_SERVER['REQUEST_METHOD']]
+                );
                 http_response_code(422);
                 exit;
         }
@@ -142,12 +203,25 @@ class TransactionMessageController extends \Core\Controller
 
     public function removeAction()
     {
+        $this->logger->info(
+            'Begining handle `' . $_SERVER['REQUEST_METHOD'] . '` request on `' . __FUNCTION__ . '`', 
+            ['idUser' => $_SESSION['user']['idUser'] ?? null]
+        );
+        
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
                 if(!empty($_SESSION['transactionMessage'])) {
                     $this->view['transactionMessage'] = $_SESSION['transactionMessage'];
+                    $this->logger->debug(
+                        'Restoring model from saved state', 
+                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'transactionMessage' => $this->view['transactionMessage']]
+                    );
                     unset($_SESSION['transactionMessage']);
                 } else {
+                    $this->logger->info(
+                        'Filtering on transaction message.', 
+                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'idTransactionMessage' => $_GET['idTransactionMessage']]
+                    );
                     $this->view['transactionMessage'] = TransactionMessage::find($_GET['idTransactionMessage']);
                 }
 
@@ -170,16 +244,26 @@ class TransactionMessageController extends \Core\Controller
                 if(!TransactionMessage::remove($transactionMessageForm)) {
                     $_SESSION['transactionMessage'] = $transactionMessageForm;
 
+                    $this->logger->notice(
+                        'Unable to remove transaction message', 
+                        ['idUser' => $_SESSION['user']['idUser'] ?? null, 'transactionMessage' => $transactionMessageForm]
+                    );
+
                     NotificationHelper::set('transactionMessage.remove', 'warning', 'Erreur lors de la suppression du message de transaction');
                     header('Location: /transactionMessage');
                     exit;
                 }
 
+                $this->logger->info('Transaction message removed', ['idUser' => $_SESSION['user']['idUser'] ?? null]);
                 NotificationHelper::set('transactionMessage.remove', 'success', 'Message de transaction supprimé');
                 header('Location: /transactionMessage');
                 exit;
                 
             default:
+                $this->logger->warning(
+                    'Request method not supported', 
+                    ['idUser' => $_SESSION['user']['idUser'] ?? null, 'requestMethod' => $_SERVER['REQUEST_METHOD']]
+                );
                 http_response_code(422);
                 exit;
         }

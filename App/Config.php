@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Libs\Logger;
+
 /**
  * Application configuration
  */
@@ -17,4 +19,9 @@ class Config
     const BCRYPT_COST = 7;
 
     const SHOW_ERRORS = true;
+
+    const LOG_FILE = __DIR__ . '/../logs/twict.log';
+
+    // https://github.com/Seldaek/monolog/blob/main/doc/01-usage.md#log-levels
+    const LOG_LEVEL = Logger::INFO;
 }

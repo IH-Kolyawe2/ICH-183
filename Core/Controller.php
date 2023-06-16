@@ -2,6 +2,9 @@
 
 namespace Core;
 
+use App\Libs\Logger;
+use Reflection;
+
 /**
  * Base controller
  */
@@ -13,6 +16,12 @@ abstract class Controller
      * @var array
      */
     protected $route_params = [];
+    
+    /**
+    * Instance of Monolog
+    * @var \Monolog\Logger
+    */
+    protected $logger;
 
     /**
      * Class constructor
@@ -25,6 +34,8 @@ abstract class Controller
     {
         $this->view = [];
         $this->route_params = $route_params;
+
+        $this->logger = Logger::getInstance((new \ReflectionClass($this))->getShortName());
     }
 
     /**
